@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aviator Pro Gaming App</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+        body {
+            background-color: #0b0e14;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app-view {
+            width: 100vw;
+            height: 100vh;
+            max-width: 450px;
+            background: #121722;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        /* ১. অটো স্প্ল্যাশ ইন্ট্রো স্ক্রিন */
+        .auto-splash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0b0e14;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: hideSplash 0.5s ease-out 2.5s forwards;
+            pointer-events: none;
+        }
+        .splash-logo h1 {
+            font-size: 42px;
+            color: #ff3838;
+            font-style: italic;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255, 56, 56, 0.6);
+            text-align: center;
+        }
+        .splash-logo p {
+            font-size: 13px;
+            color: #ffa502;
+            margin-top: 5px;
+            letter-spacing: 1px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .loader-spinner {
+            width: 35px;
+            height: 35px;
+            border: 4px solid rgba(255, 56, 56, 0.2);
+            border-top: 4px solid #ff3838;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes hideSplash {
+            0% { opacity: 1; visibility: visible; }
+            99% { opacity: 0; visibility: visible; }
+            100% { opacity: 0; visibility: hidden; display: none; }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        /* হোম পেজ হেডার ও বাটন */
+        .dash-header {
+            background: #171e2c;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #252e3e;
+        }
+        .brand-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff3838;
+            font-style: italic;
+        }
+        
+        .auth-buttons-row {
+            display: flex;
+            gap: 10px;
+            padding: 12px;
+            background: #121722;
+        }
+        .auth-btn-reg {
+            flex: 1;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .auth-btn-login {
+            flex: 1;
+            background: #dc2626;
+            border: none;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4);
+        }
+
+        .dash-content {
+            padding: 12px;
+            padding-bottom: 75px;
+        }
+
+        .promo-banner {
+            background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(185, 28, 28, 0.4);
+            border: 1px solid #ef4444;
+        }
+        .promo-banner h3 {
+            color: #fef08a;
+            font-size: 17px;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+        .promo-banner p {
+            font-size: 12px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .promo-btn {
+            background: #ffffff;
+            color: #b91c1c;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .section-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #cbd5e1;
+            font-weight: bold;
+        }
+
+        /* গেম থাম্বনেইল কার্ড গ্রিড */
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .thumb-card {
+            background: #171e2c;
+            border: 1.5px solid #334155;
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .thumb-card:hover {
+            border-color: #ff3838;
+            transform: translateY(-2px);
+        }
+        
+        .pro-crash-thumb {
+            height: 125px;
+            background: radial-gradient(circle at 80% 20%, #ff0055 0%, #1a0826 60%, #080d1a 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #2a384c;
+        }
+        .pro-crash-thumb::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(0deg, rgba(255,255,255,0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 12px 12px;
+            pointer-events: none;
+        }
+        .thumb-tag-top {
+            display: flex;
+            justify-content: space-between;
+            z-index: 2;
+        }
+        .tag-hot {
+            background: linear-gradient(90deg, #ff3838, #ff6b81);
+            color: #fff;
+            font-size: 8px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 4px;
+            box-shadow: 0 0 8px rgba(255,56,56,0.8);
+        }
+        .badge-mult {
+            background: rgba(46, 213, 115, 0.25);
+            border: 1px solid #2ed573;
+            color: #2ed573;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 1px 5px;
+            border-radius: 4px;
+            text-shadow: 0 0 5px #2ed573;
+        }
+
+        .rocket-art {
+            position: absolute;
+            top: 22px;
+            left: 28px;
+            font-size: 34px;
+            transform: rotate(25deg);
+            z-index: 2;
+            filter: drop-shadow(0 0 10px #ff3838);
+        }
+        .glow-line {
+            position: absolute;
+            bottom: 25px;
+            left: -10px;
+            width: 120%;
+            height: 3px;
+            background: linear-gradient(90deg, #ffa502, #ff3838, #2ed573);
+            transform: rotate(-22deg);
+            box-shadow: 0 0 12px #2ed573;
+            z-index: 1;
+        }
+        .crash-title-badge {
+            background: linear-gradient(90deg, #ff3838, #c0392b);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 4px;
+            width: max-content;
+            box-shadow: 0 0 10px rgba(255, 56, 56, 0.7);
+            border: 1px solid #ff6b81;
+            z-index: 2;
+        }
+
+        .thumb-info {
+            padding: 8px 10px;
+            text-align: center;
+        }
+        .thumb-info h4 {
+            font-size: 13px;
+            color: #fff;
+            margin-bottom: 2px;
+            font-weight: bold;
+        }
+        .thumb-info p {
+            font-size: 10px;
+            color: #38bdf8;
+        }
+
+        /* ফর্ম স্ক্রিন (লগইন ও রেজিস্ট্রেশন) */
+        .auth-screen {
+            background: radial-gradient(circle at top, #1c2536 0%, #0d111a 100%);
+            padding: 30px 20px;
+            justify-content: center;
+        }
+        .form-card {
+            background: rgba(20, 27, 38, 0.95);
+            padding: 25px 20px;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            width: 100%;
+        }
+        .form-card h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #fff;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            font-size: 12px;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            background: #0b0e14;
+            border: 1px solid #2b3648;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+        }
+        .main-btn {
+            width: 100%;
+            padding: 14px;
+            background: #dc2626;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #38bdf8;
+            cursor: pointer;
+        }
+
+        /* বটম ন্যাভ বার */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 55px;
+            background: #161d2a;
+            border-top: 1px solid #232d3f;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 10;
+        }
+        .nav-tab {
+            text-align: center;
+            color: #64748b;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        .nav-tab.active {
+            color: #ff3838;
+        }
+        .nav-tab div {
+            font-size: 16px;
+            margin-bottom: 1px;
+        }
+
+        /* ক্রাশ গেম স্ক্রিন */
+        .game-header {
+            background: #171e2c;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-bar {
+            background: #0d111a;
+            padding: 8px 12px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            border-bottom: 1px solid #222c3d;
+        }
+        .history-bar::-webkit-scrollbar { display: none; }
+        .badge {
+            background: #1e293b;
+            color: #38bdf8;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .canvas-area {
+            height: 200px;
+            background: radial-gradient(circle at bottom left, #1a233a 0%, #090c12 100%);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-bottom: 1px solid #222c3d;
+        }
+        .multiplier-text {
+            font-size: 42px;
+            font-weight: 900;
+            color: #ffffff;
+            z-index: 2;
+        }
+        .rocket-icon {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 28px;
+            transition: transform 0.1s linear;
+        }
+        .bet-controls {
+            padding: 12px;
+            background: #171e2c;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .amount-selector {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .chip-btn {
+            flex: 1;
+            background: #222d3e;
+            border: none;
+            color: #fff;
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .input-row input {
+            width: 35%;
+            background: #0b0e14;
+            border: 1px solid #2b3648;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .bet-action-btn {
+            width: 65%;
+            padding: 12px;
+            background: #2ed573;
+            border: none;
+            color: #000;
+            font-size: 16px;
+            font-weight: 900;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .bet-action-btn.cashout {
+            background: #ff3838;
+            color: #fff;
+        }
+        .ad-banner {
+            background: #1c2638;
+            border: 1px dashed #ffa502;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+        }
+        .ad-banner p {
+            font-size: 10px;
+            color: #cbd5e1;
+            margin-bottom: 4px;
+        }
+        .ad-btn {
+            background: #ffa502;
+            color: #000;
+            border: none;
+            width: 100%;
+            padding: 6px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        /* ওয়ালেট ও ড্যাশবোর্ড মোড সেকশন */
+        .user-wallet-card {
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #334155;
+            display: none;
+        }
+        .user-wallet-card.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-view">
+
+        <!-- অটো স্প্ল্যাশ ইন্ট্রো স্ক্রিন -->
+        <div class="auto-splash">
+            <div class="splash-logo">
+                <h1>Aviator Pro</h1>
+                <p>ONLINE GAMING</p>
+            </div>
+            <div class="loader-spinner"></div>
+        </div>
+
+        <!-- ১. হোম ড্যাশবোর্ড স্ক্রিন -->
+        <div id="homeScreen" class="screen active">
+            <div class="dash-header">
+                <div class="brand-title">Aviator Pro</div>
+                <div style="font-size: 12px; color: #2ed573;" id="topUserStatus">গেস্ট মোড (অরক্ষিত)</div>
+            </div>
+
+            <!-- লগইন না থাকলে এই বাটনগুলো শো করবে -->
+            <div class="auth-buttons-row" id="authBtnRow">
+                <button class="auth-btn-reg" onclick="showPage('registerScreen')">নিবন্ধন</button>
+                <button class="auth-btn-login" onclick="showPage('loginScreen')">লগইন</button>
+            </div>
+
+            <div class="dash-content">
+                <!-- ইউজার লগইন করলে এই ওয়ালেট কার্ডটি দেখাবে -->
+                <div class="user-wallet-card" id="userWalletCard">
+                    <div style="display:flex; justify-space-between; margin-bottom:6px; font-size:12px; color:#94a3b8;">
+                        <span>ইউজার অ্যাকাউন্ট: <b id="walletUserPhone" style="color:#fff;">-</b></span>
+                        <span onclick="logoutUser()" style="color:#ff3838; cursor:pointer; font-weight:bold;">লগআউট ➔</span>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1; background:#0b0e14; padding:8px; border-radius:6px;">
+                            <div style="font-size:10px; color:#94a3b8;">ডেমো ব্যালেন্স</div>
+                            <div style="font-size:15px; color:#2ed573; font-weight:bold;" id="dashDemoVal">৳100</div>
+                        </div>
+                        <div style="flex:1; background:#0b0e14; padding:8px; border-radius:6px;">
+                            <div style="font-size:10px; color:#94a3b8;">আর্নিং ব্যালেন্স</div>
+                            <div style="font-size:15px; color:#ffa502; font-weight:bold;" id="dashEarnVal">৳0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="promo-banner">
+                    <h3>🔥 প্রতিদিন ফ্রি বোনাস ৳৯,৯৯৯,৯৯৯</h3>
+                    <p>বিকাশ, নগদ ও রকেটে ইনস্ট্যান্ট পেমেন্ট পান!</p>
+                    <button class="promo-btn" onclick="showPage('gameScreen')">এখনই খেলুন</button>
+                </div>
+
+                <div class="section-title">🔥 সেরা ক্রাশ ও স্লট গেমস</div>
+
+                <div class="thumbnail-grid">
+                    <!-- Aviator Pro ক্রাশ গেম কার্ড (গেস্ট মোডেও কাজ করবে) -->
+                    <div class="thumb-card" onclick="showPage('gameScreen')">
+                        <div class="pro-crash-thumb">
+                            <div class="thumb-tag-top">
+                                <span class="tag-hot">HOT</span>
+                                <span class="badge-mult">25.6x</span>
+                            </div>
+                            <div class="glow-line"></div>
+                            <div class="rocket-art">🚀</div>
+                            <div class="crash-title-badge">CRASH!</div>
+                        </div>
+                        <div class="thumb-info">
+                            <h4>Aviator Pro</h4>
+                            <p>বিমানচালক ক্রাশ (খেলুন)</p>
+                        </div>
+                    </div>
+
+                    <!-- রকেট স্লট গেম কার্ড -->
+                    <div class="thumb-card" onclick="showPage('gameScreen')">
+                        <div class="pro-crash-thumb" style="background: radial-gradient(circle at 20% 20%, #00d2d3 0%, #092c3e 60%, #080d1a 100%);">
+                            <div class="thumb-tag-top">
+                                <span class="tag-hot" style="background: linear-gradient(90deg, #ffa502, #ff6b81);">NEW</span>
+                                <span class="badge-mult" style="border-color: #ffa502; color: #ffa502;">12.3x</span>
+                            </div>
+                            <div class="glow-line" style="background: linear-gradient(90deg, #00d2d3, #2ed573);"></div>
+                            <div class="rocket-art" style="left: auto; right: 20px;">🛸</div>
+                            <div class="crash-title-badge" style="background: linear-gradient(90deg, #00d2d3, #0984e3);">MEGA CRASH</div>
+                        </div>
+                        <div class="thumb-info">
+                            <h4>রকেট স্লট</h4>
+                            <p>স্পেস ইনকাম (খেলুন)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-tab active" onclick="showPage('homeScreen')
