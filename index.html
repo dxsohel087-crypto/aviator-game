@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aviator Pro - Real Crash Game</title>
+    <title>Aviator Pro - Ultimate Edition</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0b111e; color: #ffffff; padding-bottom: 70px; }
+        body { background-color: #0b111e; color: #ffffff; padding-bottom: 70px; overflow-x: hidden; }
         
+        /* Intro Splash Screen */
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #070a12; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
+        .splash-logo { font-size: 42px; font-weight: bold; color: #e51c24; font-style: italic; animation: pulseLogo 1.5s infinite alternate; }
+        .splash-sub { color: #ffca28; font-size: 14px; margin-top: 10px; letter-spacing: 2px; }
+        @keyframes pulseLogo { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.08); opacity: 1; } }
+
         header { background: #151d30; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #232d47; }
         .logo { font-size: 18px; font-weight: bold; color: #e51c24; font-style: italic; }
         .auth-top-btns { display: flex; gap: 8px; }
@@ -20,9 +26,9 @@
         
         /* Game Arena */
         .game-container { background: #121926; margin: 10px; border-radius: 10px; padding: 10px; border: 1px solid #232d47; position: relative; }
-        .multiplier-display { text-align: center; font-size: 40px; font-weight: bold; color: #ffca28; margin: 5px 0; text-shadow: 0 0 12px rgba(255,202,40,0.6); }
+        .multiplier-display { text-align: center; font-size: 42px; font-weight: bold; color: #ffca28; margin: 5px 0; text-shadow: 0 0 15px rgba(255,202,40,0.6); }
         .live-win-preview { text-align: center; font-size: 13px; color: #28a745; margin-bottom: 8px; height: 18px; font-weight: bold; }
-        #game-canvas { background: #070a12; width: 100%; height: 220px; border-radius: 8px; display: block; }
+        #game-canvas { background: #070a12; width: 100%; height: 210px; border-radius: 8px; display: block; }
         
         /* Betting Panels (Dual) */
         .bets-wrapper { display: flex; flex-direction: column; gap: 10px; margin: 10px; }
@@ -56,6 +62,12 @@
 </head>
 <body>
 
+    <!-- Intro Splash Screen -->
+    <div id="splash-screen">
+        <div class="splash-logo">🚀 Aviator Pro</div>
+        <div class="splash-sub">রিয়েল ক্রাশ গেম লোড হচ্ছে...</div>
+    </div>
+
     <!-- Header -->
     <header>
         <div class="logo">Aviator Pro</div>
@@ -72,12 +84,12 @@
         <div class="game-container">
             <div class="multiplier-display" id="mult-view">1.00x</div>
             <div class="live-win-preview" id="win-preview">সম্ভাব্য উইন: ৳0</div>
-            <canvas id="game-canvas" width="360" height="200"></canvas>
+            <canvas id="game-canvas" width="360" height="210"></canvas>
         </div>
 
         <div class="live-stats">
-            <span>অনলাইন খেলোয়াড়: <strong style="color:#28a745">১,৮৪৫ জন</strong></span>
-            <span id="history-mults">হিস্ট্রি: 1.4x, 2.8x, 1.12x, 5.4x</span>
+            <span>অনলাইন খেলোয়াড়: <strong style="color:#28a745">২,১৫০ জন</strong></span>
+            <span id="history-mults">হিস্ট্রি: 1.5x, 3.2x, 1.1x, 4.8x</span>
         </div>
 
         <!-- Dual Bet Controls -->
@@ -168,12 +180,20 @@
     </div>
 
     <script>
+        // Hide Splash Screen after 1.8 seconds with fade out
+        setTimeout(() => {
+            let splash = document.getElementById('splash-screen');
+            if(splash) {
+                splash.style.opacity = '0';
+                setTimeout(() => splash.remove(), 500);
+            }
+        }, 1800);
+
         let usersDB = JSON.parse(localStorage.getItem('aviator_users_db')) || [];
         let currentUser = JSON.parse(localStorage.getItem('aviator_current_user')) || null;
 
         function initApp() {
             if (!currentUser) {
-                // Not logged in, show auth buttons in header
                 document.getElementById('header-right-area').innerHTML = `
                     <div class="auth-top-btns">
                         <button class="btn-top-login" onclick="openModal('loginModal')">লগইন</button>
@@ -192,20 +212,35 @@
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // Audio notification helper using Web Audio API
-        function playBeep(freq = 400, duration = 0.1) {
+        // Professional Web Audio Sound Generator
+        function playSound(type) {
             try {
                 let ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
                 let osc = ctxAudio.createOscillator();
                 let gain = ctxAudio.createGain();
-                osc.type = "sine";
-                osc.frequency.value = freq;
                 osc.connect(gain);
                 gain.connect(ctxAudio.destination);
-                osc.start();
-                gain.gain.setValueAtTime(0.1, ctxAudio.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.00001, ctxAudio.currentTime + duration);
-                osc.stop(ctxAudio.currentTime + duration);
+
+                if (type === 'start') {
+                    osc.frequency.setValueAtTime(300, ctxAudio.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, ctxAudio.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.1, ctxAudio.currentTime);
+                    osc.start();
+                    osc.stop(ctxAudio.currentTime + 0.2);
+                } else if (type === 'cashout') {
+                    osc.frequency.setValueAtTime(600, ctxAudio.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1200, ctxAudio.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.15, ctxAudio.currentTime);
+                    osc.start();
+                    osc.stop(ctxAudio.currentTime + 0.3);
+                } else if (type === 'crash') {
+                    osc.type = "sawtooth";
+                    osc.frequency.setValueAtTime(150, ctxAudio.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(40, ctxAudio.currentTime + 0.4);
+                    gain.gain.setValueAtTime(0.2, ctxAudio.currentTime);
+                    osc.start();
+                    osc.stop(ctxAudio.currentTime + 0.4);
+                }
             } catch(e) {}
         }
 
@@ -214,44 +249,36 @@
             let phone = document.getElementById('reg-phone').value.trim();
             let pass = document.getElementById('reg-pass').value.trim();
 
-            if (!name || name.length < 3) {
-                alert('দয়া করে আপনার সঠিক নাম লিখুন।');
+            if (!name || name.length < 2) {
+                alert('দয়া করে সঠিক নাম লিখুন।');
                 return;
             }
             if (!phone || phone.length < 11 || isNaN(phone)) {
-                alert('দয়া করে সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।');
+                alert('সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 017xxxxxxxx)');
                 return;
             }
             if (!pass || pass.length < 4) {
-                alert('অন্তত ৪ ডিজিটের পাসওয়ার্ড দিন।');
+                alert('অন্তত ৪ সংখ্যার পাসওয়ার্ড দিন।');
                 return;
             }
 
-            // Check if user already exists
             let exist = usersDB.find(u => u.phone === phone);
             if (exist) {
-                alert('এই নম্বর দিয়ে ইতিপূর্বে একাউন্ট খোলা হয়েছে! দয়া করে লগইন করুন।');
+                alert('এই নম্বর দিয়ে ইতিমধ্যে একাউন্ট আছে! দয়া করে লগইন করুন।');
                 closeModal('regModal');
                 openModal('loginModal');
                 return;
             }
 
-            let newUser = {
-                name: name,
-                phone: phone,
-                pass: pass,
-                balance: 1000 // ফ্রি ডেমো ব্যালেন্স
-            };
-
+            let newUser = { name, phone, pass, balance: 1000 };
             usersDB.push(newUser);
             localStorage.setItem('aviator_users_db', JSON.stringify(usersDB));
             
             currentUser = newUser;
             localStorage.setItem('aviator_current_user', JSON.stringify(currentUser));
 
-            alert('অভিনন্দন! সফলভাবে সাইন-আপ সম্পন্ন হয়েছে এবং ১০০০ টাকা বোনাস যোগ হয়েছে।');
+            alert('সফলভাবে সাইন-আপ হয়েছে এবং ৳১০০০ ডেমো বোনাস যোগ হয়েছে!');
             closeModal('regModal');
-            initApp();
             location.reload();
         }
 
@@ -266,7 +293,7 @@
 
             let found = usersDB.find(u => u.phone === phone && u.pass === pass);
             if (!found) {
-                alert('মোবাইল নম্বর অথবা পাসওয়ার্ড ভুল হয়েছে! সঠিক তথ্য দিন অথবা সাইন আপ করুন।');
+                alert('নম্বর অথবা পাসওয়ার্ড ভুল হয়েছে!');
                 return;
             }
 
@@ -275,7 +302,6 @@
 
             alert('সফলভাবে লগইন হয়েছে!');
             closeModal('loginModal');
-            initApp();
             location.reload();
         }
 
@@ -295,7 +321,6 @@
 
         function saveBalance() {
             localStorage.setItem('aviator_current_user', JSON.stringify(currentUser));
-            // Update in DB array as well
             let idx = usersDB.findIndex(u => u.phone === currentUser.phone);
             if(idx !== -1) {
                 usersDB[idx].balance = currentUser.balance;
@@ -320,7 +345,6 @@
             alert("রেফারেল লিংক কপি করা হয়েছে!");
         }
 
-        // Betting Controls logic
         function changeBet(panelId, amt) {
             let input = document.getElementById('bet-input-' + panelId);
             let val = parseInt(input.value) + amt;
@@ -330,7 +354,7 @@
             document.getElementById('bet-input-' + panelId).value = val;
         }
 
-        // Game Engine Logic with Real Airplane and Win Animation
+        // Game Engine Logic
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
         
@@ -338,7 +362,7 @@
         let currentMult = 1.00;
         let crashPoint = 1.00;
         let gameInterval = null;
-        let planeX = 15, planeY = 15;
+        let planeX = 20, planeY = 20;
 
         let betsActive = { 1: false, 2: false };
         let betAmounts = { 1: 0, 2: 0 };
@@ -346,49 +370,8 @@
         function drawScene(mult, statusColor = "#ffca28") {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw grid lines
+            // Grid lines
             ctx.strokeStyle = "#1b263b";
             ctx.lineWidth = 1;
             for(let i=0; i<canvas.width; i+=40) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
-            }
-            for(let j=0; j<canvas.height; j+=40) {
-                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
-            }
-
-            // Draw Airplane Curve & Icon
-            if(gameState === 'RUNNING' || gameState === 'CRASHED') {
-                ctx.strokeStyle = "#e51c24";
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(15, 185);
-                ctx.quadraticCurveTo(planeX / 1.5, 185 - (planeY * 0.8), planeX, 185 - planeY);
-                ctx.stroke();
-
-                // Draw Plane Head / Icon
-                ctx.fillStyle = statusColor;
-                ctx.beginPath();
-                ctx.arc(planeX, 185 - planeY, 8, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Wings text or mini glow
-                ctx.fillStyle = "#fff";
-                ctx.font = "10px sans-serif";
-                ctx.fillText("✈️", planeX - 6, 185 - planeY + 4);
-            }
-        }
-
-        function runGameCycle() {
-            gameState = 'RUNNING';
-            currentMult = 1.00;
-            crashPoint = (Math.random() * 4.5 + 1.15).toFixed(2); 
-            planeX = 15; planeY = 15;
-
-            for(let i=1; i<=2; i++) {
-                if(betsActive[i]) {
-                    document.getElementById(`btn-bet-${i}`).style.display = 'none';
-                    document.getElementById(`btn-cashout-${i}`).style.display = 'block';
-                }
-            }
-
-            playBeep(600, 0
+                ctx.beginPath(); ctx.mov
