@@ -24,7 +24,6 @@
         .section-title { margin: 15px; font-size: 16px; display: flex; align-items: center; gap: 5px; }
         .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px; }
         .game-card { background: #151d30; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #232d47; position: relative; cursor: pointer; }
-        .game-card img { width: 100%; border-radius: 8px; height: 100px; object-fit: cover; }
         .badge { position: absolute; top: 15px; left: 15px; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
         .badge-hot { background: #e51c24; }
         .badge-new { background: #00b0ff; }
@@ -95,7 +94,7 @@
     <div id="refer-content" style="display:none; padding: 20px; text-align: center;">
         <h3>🎁 রেফার করে আয় করুন</h3>
         <p style="margin: 15px 0; color: #aaa;">আপনার রেফারেল লিংক শেয়ার করে প্রতি রেফারে পান ৳৫০ বোনাস!</p>
-        <input type="text" value="https://aviator-pro.com/ref?user=12345" readonly style="width: 100%; padding: 10px; text-align: center; background: #151d30; border: 1px solid #232d47; color: #fff; border-radius: 5px;">
+        <input type="text" value="https://dxsohel087-crypto.github.io/aviator-game/?ref=12345" readonly style="width: 100%; padding: 10px; text-align: center; background: #151d30; border: 1px solid #232d47; color: #fff; border-radius: 5px;">
         <button onclick="alert('লিংক কপি হয়েছে!')" style="margin-top: 10px; padding: 10px 20px; background: #28a745; color: #fff; border: none; border-radius: 5px;">লিংক কপি করুন</button>
     </div>
 
@@ -166,6 +165,10 @@
             document.getElementById('app-content').style.display = tab === 'home' ? 'block' : 'none';
             document.getElementById('refer-content').style.display = tab === 'refer' ? 'block' : 'none';
             document.getElementById('profile-content').style.display = tab === 'profile' ? 'block' : 'none';
+            
+            // Update active state on nav
+            let items = document.querySelectorAll('.nav-item');
+            items.forEach(item => item.classList.remove('active'));
         }
 
         function handleLogin() {
@@ -175,6 +178,8 @@
                 document.getElementById('auth-header').innerHTML = `<span style="color:#28a745; font-weight:bold;">৳${balance}</span>`;
                 closeModal('loginModal');
                 alert('সফলভাবে লগইন হয়েছে!');
+            } else {
+                alert('দয়া করে সঠিক তথ্য দিন।');
             }
         }
 
@@ -185,6 +190,8 @@
                 document.getElementById('auth-header').innerHTML = `<span style="color:#28a745; font-weight:bold;">৳${balance}</span>`;
                 closeModal('regModal');
                 alert('অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!');
+            } else {
+                alert('দয়া করে নাম ও অন্যান্য তথ্য দিন।');
             }
         }
 
