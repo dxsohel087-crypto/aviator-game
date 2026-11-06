@@ -10,12 +10,18 @@
         
         header { background: #151d30; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #232d47; }
         .logo { font-size: 18px; font-weight: bold; color: #e51c24; font-style: italic; }
+        .auth-top-btns { display: flex; gap: 8px; }
+        .auth-top-btns button { padding: 6px 12px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-top-login { background: #232d47; color: #fff; }
+        .btn-top-reg { background: #e51c24; color: #fff; }
+        
         .user-panel { display: flex; align-items: center; gap: 10px; font-size: 14px; }
         .balance-box { background: #0b111e; padding: 5px 10px; border-radius: 5px; border: 1px solid #28a745; color: #28a745; font-weight: bold; }
         
         /* Game Arena */
-        .game-container { background: #121926; margin: 10px; border-radius: 10px; padding: 10px; border: 1px solid #232d47; }
-        .multiplier-display { text-align: center; font-size: 38px; font-weight: bold; color: #ffca28; margin: 10px 0; text-shadow: 0 0 10px rgba(255,202,40,0.5); }
+        .game-container { background: #121926; margin: 10px; border-radius: 10px; padding: 10px; border: 1px solid #232d47; position: relative; }
+        .multiplier-display { text-align: center; font-size: 40px; font-weight: bold; color: #ffca28; margin: 5px 0; text-shadow: 0 0 12px rgba(255,202,40,0.6); }
+        .live-win-preview { text-align: center; font-size: 13px; color: #28a745; margin-bottom: 8px; height: 18px; font-weight: bold; }
         #game-canvas { background: #070a12; width: 100%; height: 220px; border-radius: 8px; display: block; }
         
         /* Betting Panels (Dual) */
@@ -25,12 +31,11 @@
         .amount-control { display: flex; align-items: center; background: #0b111e; border-radius: 5px; border: 1px solid #232d47; overflow: hidden; }
         .amount-control button { background: #232d47; color: #fff; border: none; padding: 8px 14px; font-size: 16px; cursor: pointer; font-weight: bold; }
         .amount-control button:active { background: #e51c24; }
-        .amount-control input { width: 60px; background: transparent; border: none; color: #fff; text-align: center; font-size: 16px; font-weight: bold; outline: none; }
+        .amount-control input { width: 65px; background: transparent; border: none; color: #fff; text-align: center; font-size: 16px; font-weight: bold; outline: none; }
         
         .btn-action { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .btn-bet { background: #28a745; color: #fff; }
         .btn-cashout { background: #ffc107; color: #000; display: none; }
-        .btn-cancel { background: #dc3545; color: #fff; display: none; }
 
         /* Live Players & History */
         .live-stats { display: flex; justify-content: space-between; margin: 10px; background: #151d30; padding: 8px 12px; border-radius: 6px; font-size: 12px; color: #8a99ad; }
@@ -41,11 +46,12 @@
         .nav-item.active { color: #e51c24; }
 
         /* Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: #151d30; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; border: 1px solid #e51c24; position: relative; }
         .modal-content h3 { margin-bottom: 15px; color: #e51c24; text-align: center; }
-        .modal-content input { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 5px; border: 1px solid #232d47; background: #0b111e; color: #fff; }
-        .modal-content button { width: 100%; padding: 10px; background: #e51c24; border: none; color: #fff; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        .modal-content input { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 5px; border: 1px solid #232d47; background: #0b111e; color: #fff; font-size: 14px; }
+        .modal-content button { width: 100%; padding: 10px; background: #e51c24; border: none; color: #fff; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 15px; }
+        .close-modal { text-align: center; margin-top: 10px; font-size: 12px; color: #8a99ad; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -53,8 +59,11 @@
     <!-- Header -->
     <header>
         <div class="logo">Aviator Pro</div>
-        <div class="user-panel" id="header-user-area">
-            <!-- Dynamically Loaded -->
+        <div id="header-right-area">
+            <div class="auth-top-btns">
+                <button class="btn-top-login" onclick="openModal('loginModal')">লগইন</button>
+                <button class="btn-top-reg" onclick="openModal('regModal')">সাইন আপ</button>
+            </div>
         </div>
     </header>
 
@@ -62,12 +71,13 @@
     <div id="tab-game">
         <div class="game-container">
             <div class="multiplier-display" id="mult-view">1.00x</div>
+            <div class="live-win-preview" id="win-preview">সম্ভাব্য উইন: ৳0</div>
             <canvas id="game-canvas" width="360" height="200"></canvas>
         </div>
 
         <div class="live-stats">
-            <span>online: <strong style="color:#28a745">1,429</strong></span>
-            <span id="history-mults">History: 1.2x, 2.4x, 1.05x</span>
+            <span>অনলাইন খেলোয়াড়: <strong style="color:#28a745">১,৮৪৫ জন</strong></span>
+            <span id="history-mults">হিস্ট্রি: 1.4x, 2.8x, 1.12x, 5.4x</span>
         </div>
 
         <!-- Dual Bet Controls -->
@@ -81,8 +91,8 @@
                         <button onclick="changeBet(1, 50)">+</button>
                     </div>
                     <div>
-                        <button onclick="setPreset(1, 100)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">100</button>
-                        <button onclick="setPreset(1, 500)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">500</button>
+                        <button onclick="setPreset(1, 100)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">৳১০০</button>
+                        <button onclick="setPreset(1, 500)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">৳৫০০</button>
                     </div>
                 </div>
                 <button class="btn-action btn-bet" id="btn-bet-1" onclick="toggleBet(1)">বেট করুন (৳100)</button>
@@ -98,8 +108,8 @@
                         <button onclick="changeBet(2, 50)">+</button>
                     </div>
                     <div>
-                        <button onclick="setPreset(2, 200)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">200</button>
-                        <button onclick="setPreset(2, 1000)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">1000</button>
+                        <button onclick="setPreset(2, 200)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">৳২০০</button>
+                        <button onclick="setPreset(2, 1000)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">৳১০০০</button>
                     </div>
                 </div>
                 <button class="btn-action btn-bet" id="btn-bet-2" onclick="toggleBet(2)">বেট করুন (৳200)</button>
@@ -121,7 +131,7 @@
         <h3 style="color: #e51c24; margin-bottom: 15px;">👤 একাউন্ট প্রোফাইল</h3>
         <div style="background: #151d30; padding: 15px; border-radius: 8px; border: 1px solid #232d47; line-height: 1.8;">
             <p>নাম: <strong id="p-name">-</strong></p>
-            <p>নম্বর/আইডি: <strong id="p-phone">-</strong></p>
+            <p>মোবাইল নম্বর: <strong id="p-phone">-</strong></p>
             <p>ব্যালেন্স: <strong style="color: #28a745;">৳<span id="p-bal">0</span></strong></p>
             <button onclick="logout()" style="margin-top: 15px; width: 100%; padding: 10px; background: #dc3545; color: #fff; border: none; border-radius: 5px; font-weight: bold;">লগ আউট করুন</button>
         </div>
@@ -134,26 +144,44 @@
         <div class="nav-item" onclick="switchTab('profile', this)">👤 প্রোফাইল</div>
     </div>
 
-    <!-- Auth Modal (Login / Register Combined smoothly) -->
-    <div id="authModal" class="modal">
+    <!-- Register Modal -->
+    <div id="regModal" class="modal">
         <div class="modal-content">
-            <h3 id="auth-title">সঠিক তথ্য দিয়ে প্রবেশ করুন</h3>
-            <input type="text" id="auth-name" placeholder="আপনার নাম (শুধু নিবন্ধনের জন্য)">
-            <input type="text" id="auth-phone" placeholder="মোবাইল নম্বর (যেমন: 017xxxxxxxx)">
-            <input type="password" id="auth-pass" placeholder="পাসওয়ার্ড দিন">
-            <button onclick="handleAuthSubmit()">লগইন / একাউন্ট তৈরি করুন</button>
+            <h3>নতুন একাউন্ট সাইন আপ</h3>
+            <input type="text" id="reg-name" placeholder="আপনার পূর্ণ নাম দিন">
+            <input type="tel" id="reg-phone" placeholder="সঠিক মোবাইল নম্বর (যেমন: 017...)">
+            <input type="password" id="reg-pass" placeholder="৬ সংখ্যার পাসওয়ার্ড দিন">
+            <button onclick="handleRegister()">সাইন আপ করুন</button>
+            <div class="close-modal" onclick="closeModal('regModal')">বন্ধ করুন</div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h3>একাউন্ট লগইন</h3>
+            <input type="tel" id="login-phone" placeholder="আপনার নিবন্ধিত মোবাইল নম্বর">
+            <input type="password" id="login-pass" placeholder="আপনার পাসওয়ার্ড">
+            <button onclick="handleLogin()">লগইন করুন</button>
+            <div class="close-modal" onclick="closeModal('loginModal')">বন্ধ করুন</div>
         </div>
     </div>
 
     <script>
-        // Database & State Management via LocalStorage
-        let currentUser = JSON.parse(localStorage.getItem('aviator_user')) || null;
+        let usersDB = JSON.parse(localStorage.getItem('aviator_users_db')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('aviator_current_user')) || null;
 
         function initApp() {
             if (!currentUser) {
-                document.getElementById('authModal').style.display = 'flex';
+                // Not logged in, show auth buttons in header
+                document.getElementById('header-right-area').innerHTML = `
+                    <div class="auth-top-btns">
+                        <button class="btn-top-login" onclick="openModal('loginModal')">লগইন</button>
+                        <button class="btn-top-reg" onclick="openModal('regModal')">সাইন আপ</button>
+                    </div>
+                `;
             } else {
-                updateHeader();
+                updateHeaderUser();
                 document.getElementById('p-name').innerText = currentUser.name;
                 document.getElementById('p-phone').innerText = currentUser.phone;
                 document.getElementById('p-bal').innerText = currentUser.balance;
@@ -161,44 +189,120 @@
             }
         }
 
-        function handleAuthSubmit() {
-            let name = document.getElementById('auth-name').value.trim();
-            let phone = document.getElementById('auth-phone').value.trim();
-            let pass = document.getElementById('auth-pass').value.trim();
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-            if (!phone || !pass) {
-                alert('দয়া করে মোবাইল নম্বর এবং পাসওয়ার্ড দিন।');
+        // Audio notification helper using Web Audio API
+        function playBeep(freq = 400, duration = 0.1) {
+            try {
+                let ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = ctxAudio.createOscillator();
+                let gain = ctxAudio.createGain();
+                osc.type = "sine";
+                osc.frequency.value = freq;
+                osc.connect(gain);
+                gain.connect(ctxAudio.destination);
+                osc.start();
+                gain.gain.setValueAtTime(0.1, ctxAudio.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, ctxAudio.currentTime + duration);
+                osc.stop(ctxAudio.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function handleRegister() {
+            let name = document.getElementById('reg-name').value.trim();
+            let phone = document.getElementById('reg-phone').value.trim();
+            let pass = document.getElementById('reg-pass').value.trim();
+
+            if (!name || name.length < 3) {
+                alert('দয়া করে আপনার সঠিক নাম লিখুন।');
+                return;
+            }
+            if (!phone || phone.length < 11 || isNaN(phone)) {
+                alert('দয়া করে সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।');
+                return;
+            }
+            if (!pass || pass.length < 4) {
+                alert('অন্তত ৪ ডিজিটের পাসওয়ার্ড দিন।');
                 return;
             }
 
-            // Save or Login User permanently
-            currentUser = {
-                name: name ? name : "খেলোয়াড়",
+            // Check if user already exists
+            let exist = usersDB.find(u => u.phone === phone);
+            if (exist) {
+                alert('এই নম্বর দিয়ে ইতিপূর্বে একাউন্ট খোলা হয়েছে! দয়া করে লগইন করুন।');
+                closeModal('regModal');
+                openModal('loginModal');
+                return;
+            }
+
+            let newUser = {
+                name: name,
                 phone: phone,
-                balance: 1000 // ডেমো বোনাস ১০০০ টাকা স্থায়ীভাবে সেভ থাকবে
+                pass: pass,
+                balance: 1000 // ফ্রি ডেমো ব্যালেন্স
             };
 
-            localStorage.setItem('aviator_user', JSON.stringify(currentUser));
-            document.getElementById('authModal').style.display = 'none';
-            initApp();
-        }
+            usersDB.push(newUser);
+            localStorage.setItem('aviator_users_db', JSON.stringify(usersDB));
+            
+            currentUser = newUser;
+            localStorage.setItem('aviator_current_user', JSON.stringify(currentUser));
 
-        function logout() {
-            localStorage.removeItem('aviator_user');
+            alert('অভিনন্দন! সফলভাবে সাইন-আপ সম্পন্ন হয়েছে এবং ১০০০ টাকা বোনাস যোগ হয়েছে।');
+            closeModal('regModal');
+            initApp();
             location.reload();
         }
 
-        function updateHeader() {
-            document.getElementById('header-user-area').innerHTML = `
-                <div style="font-size:12px;">${currentUser.name}</div>
-                <div class="balance-box">৳<span id="top-bal">${currentUser.balance}</span></div>
+        function handleLogin() {
+            let phone = document.getElementById('login-phone').value.trim();
+            let pass = document.getElementById('login-pass').value.trim();
+
+            if (!phone || !pass) {
+                alert('নম্বর এবং পাসওয়ার্ড উভয়ই পূরণ করুন।');
+                return;
+            }
+
+            let found = usersDB.find(u => u.phone === phone && u.pass === pass);
+            if (!found) {
+                alert('মোবাইল নম্বর অথবা পাসওয়ার্ড ভুল হয়েছে! সঠিক তথ্য দিন অথবা সাইন আপ করুন।');
+                return;
+            }
+
+            currentUser = found;
+            localStorage.setItem('aviator_current_user', JSON.stringify(currentUser));
+
+            alert('সফলভাবে লগইন হয়েছে!');
+            closeModal('loginModal');
+            initApp();
+            location.reload();
+        }
+
+        function logout() {
+            localStorage.removeItem('aviator_current_user');
+            location.reload();
+        }
+
+        function updateHeaderUser() {
+            document.getElementById('header-right-area').innerHTML = `
+                <div class="user-panel">
+                    <div style="font-size:11px; max-width:85px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${currentUser.name}</div>
+                    <div class="balance-box">৳<span id="top-bal">${currentUser.balance}</span></div>
+                </div>
             `;
         }
 
         function saveBalance() {
-            localStorage.setItem('aviator_user', JSON.stringify(currentUser));
-            document.getElementById('top-bal').innerText = currentUser.balance;
-            document.getElementById('p-bal').innerText = currentUser.balance;
+            localStorage.setItem('aviator_current_user', JSON.stringify(currentUser));
+            // Update in DB array as well
+            let idx = usersDB.findIndex(u => u.phone === currentUser.phone);
+            if(idx !== -1) {
+                usersDB[idx].balance = currentUser.balance;
+                localStorage.setItem('aviator_users_db', JSON.stringify(usersDB));
+            }
+            if(document.getElementById('top-bal')) document.getElementById('top-bal').innerText = currentUser.balance;
+            if(document.getElementById('p-bal')) document.getElementById('p-bal').innerText = currentUser.balance;
         }
 
         function switchTab(tabName, el) {
@@ -226,15 +330,15 @@
             document.getElementById('bet-input-' + panelId).value = val;
         }
 
-        // Game Engine Logic
+        // Game Engine Logic with Real Airplane and Win Animation
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
         
-        let gameState = 'IDLE'; // IDLE, RUNNING, CRASHED
+        let gameState = 'IDLE'; 
         let currentMult = 1.00;
         let crashPoint = 1.00;
         let gameInterval = null;
-        let planeX = 10, planeY = 10;
+        let planeX = 15, planeY = 15;
 
         let betsActive = { 1: false, 2: false };
         let betAmounts = { 1: 0, 2: 0 };
@@ -245,35 +349,41 @@
             // Draw grid lines
             ctx.strokeStyle = "#1b263b";
             ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(0, 150); ctx.lineTo(canvas.width, 150);
-            ctx.stroke();
+            for(let i=0; i<canvas.width; i+=40) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for(let j=0; j<canvas.height; j+=40) {
+                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
+            }
 
             // Draw Airplane Curve & Icon
             if(gameState === 'RUNNING' || gameState === 'CRASHED') {
                 ctx.strokeStyle = "#e51c24";
                 ctx.lineWidth = 3;
                 ctx.beginPath();
-                ctx.moveTo(10, 180);
-                ctx.quadraticCurveTo(planeX / 2, 180 - planeY, planeX, 180 - planeY);
+                ctx.moveTo(15, 185);
+                ctx.quadraticCurveTo(planeX / 1.5, 185 - (planeY * 0.8), planeX, 185 - planeY);
                 ctx.stroke();
 
-                // Airplane head marker
+                // Draw Plane Head / Icon
                 ctx.fillStyle = statusColor;
                 ctx.beginPath();
-                ctx.arc(planeX, 180 - planeY, 6, 0, Math.PI * 2);
+                ctx.arc(planeX, 185 - planeY, 8, 0, Math.PI * 2);
                 ctx.fill();
+
+                // Wings text or mini glow
+                ctx.fillStyle = "#fff";
+                ctx.font = "10px sans-serif";
+                ctx.fillText("✈️", planeX - 6, 185 - planeY + 4);
             }
         }
 
-        // Automatic Game Loop Controller (Continuous Rounds like real Aviator)
         function runGameCycle() {
             gameState = 'RUNNING';
             currentMult = 1.00;
-            crashPoint = (Math.random() * 4 + 1.2).toFixed(2); // Random crash
-            planeX = 10; planeY = 10;
+            crashPoint = (Math.random() * 4.5 + 1.15).toFixed(2); 
+            planeX = 15; planeY = 15;
 
-            // Update UI for active bets
             for(let i=1; i<=2; i++) {
                 if(betsActive[i]) {
                     document.getElementById(`btn-bet-${i}`).style.display = 'none';
@@ -281,93 +391,4 @@
                 }
             }
 
-            gameInterval = setInterval(() => {
-                currentMult += 0.03;
-                planeX += 3;
-                planeY += 2;
-                if(planeX > canvas.width - 30) planeX = canvas.width - 30;
-                if(planeY > 140) planeY = 140;
-
-                document.getElementById('mult-view').innerText = currentMult.toFixed(2) + 'x';
-                document.getElementById('mult-view').style.color = "#ffca28";
-                drawScene(currentMult);
-
-                if(currentMult >= crashPoint) {
-                    clearInterval(gameInterval);
-                    triggerCrash();
-                }
-            }, 90);
-        }
-
-        function triggerCrash() {
-            gameState = 'CRASHED';
-            document.getElementById('mult-view').innerText = "CRASHED (" + crashPoint + "x)";
-            document.getElementById('mult-view').style.color = "#e51c24";
-            drawScene(currentMult, "#e51c24");
-
-            // Auto-fail active bets if not cashed out
-            for(let i=1; i<=2; i++) {
-                if(betsActive[i]) {
-                    betsActive[i] = false;
-                    document.getElementById(`btn-cashout-${i}`).style.display = 'none';
-                    document.getElementById(`btn-bet-${i}`).style.display = 'block';
-                    document.getElementById(`btn-bet-${i}`).innerText = `বেট করুন (৳${betAmounts[i]})`;
-                }
-            }
-
-            // Wait 4 seconds then restart next round automatically
-            setTimeout(() => {
-                resetForNextRound();
-            }, 3000);
-        }
-
-        function resetForNextRound() {
-            document.getElementById('mult-view').innerText = "আগামী রাউন্ড শুরু হচ্ছে...";
-            setTimeout(runGameCycle, 2000);
-        }
-
-        function toggleBet(panelId) {
-            let amt = parseInt(document.getElementById(`bet-input-${panelId}`).value);
-            if(currentUser.balance < amt) {
-                alert('আপনার পর্যাপ্ত ব্যালেন্স নেই!');
-                return;
-            }
-
-            currentUser.balance -= amt;
-            saveBalance();
-
-            betsActive[panelId] = true;
-            betAmounts[panelId] = amt;
-
-            let btnBet = document.getElementById(`btn-bet-${panelId}`);
-            btnBet.style.background = '#ff9800';
-            btnBet.innerText = 'অপেক্ষায় আছে...';
-        }
-
-        function cashOut(panelId) {
-            if(!betsActive[panelId] || gameState !== 'RUNNING') return;
-
-            let winAmt = Math.floor(betAmounts[panelId] * currentMult);
-            currentUser.balance += winAmt;
-            saveBalance();
-
-            betsActive[panelId] = false;
-            document.getElementById(`btn-cashout-${panelId}`).style.display = 'none';
-            let btnBet = document.getElementById(`btn-bet-${panelId}`);
-            btnBet.style.display = 'block';
-            btnBet.style.background = '#28a745';
-            btnBet.innerText = `বেট করুন (৳${betAmounts[panelId]})`;
-
-            alert(`অভিনন্দন! আপনি ৳${winAmt} ক্যাশআউট করেছেন (${currentMult.toFixed(2)}x)।`);
-        }
-
-        // Initialize on load & start first round
-        window.onload = function() {
-            initApp();
-            drawScene(1.00);
-            setTimeout(runGameCycle, 1500);
-        };
-    </script>
-</body>
-    </html>
-    
+            playBeep(600, 0
