@@ -3,58 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aviator Pro - Real Game</title>
+    <title>Aviator Pro - Casino Edition</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0b111e; color: #ffffff; padding-bottom: 70px; overflow-x: hidden; }
+        body { background-color: #0b111e; color: #ffffff; padding-bottom: 75px; overflow-x: hidden; }
         
+        /* Splash Intro Screen */
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #070a12; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.6s ease; }
+        .splash-logo { font-size: 45px; font-weight: bold; color: #e51c24; font-style: italic; animation: pulseLogo 1s infinite alternate; text-shadow: 0 0 20px rgba(229,28,36,0.6); }
+        .splash-sub { color: #ffca28; font-size: 14px; margin-top: 12px; letter-spacing: 2px; }
+        @keyframes pulseLogo { 0% { transform: scale(1); opacity: 0.85; } 100% { transform: scale(1.1); opacity: 1; } }
+
+        /* Header */
         header { background: #151d30; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #232d47; }
-        .logo { font-size: 18px; font-weight: bold; color: #e51c24; font-style: italic; }
+        .logo { font-size: 19px; font-weight: bold; color: #e51c24; font-style: italic; }
         .auth-top-btns { display: flex; gap: 8px; }
-        .auth-top-btns button { padding: 6px 12px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .auth-top-btns button { padding: 6px 12px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; font-size: 12px; }
         .btn-top-login { background: #232d47; color: #fff; }
         .btn-top-reg { background: #e51c24; color: #fff; }
         
         .user-panel { display: flex; align-items: center; gap: 10px; font-size: 14px; }
         .balance-box { background: #0b111e; padding: 5px 10px; border-radius: 5px; border: 1px solid #28a745; color: #28a745; font-weight: bold; }
         
+        /* Tabs Container */
+        .tab-content { display: none; }
+        .tab-content.active-tab { display: block; }
+
+        /* Banner */
+        .promo-banner { background: linear-gradient(135deg, #800f14, #3d0508); margin: 12px; padding: 18px; border-radius: 12px; text-align: center; border: 1px solid #ff2a34; box-shadow: 0 4px 15px rgba(229,28,36,0.3); }
+        .promo-banner h2 { color: #ffca28; font-size: 17px; margin-bottom: 6px; }
+        .promo-banner p { font-size: 12px; color: #ddd; }
+
         /* Game Arena */
-        .game-container { background: #121926; margin: 10px; border-radius: 10px; padding: 10px; border: 1px solid #232d47; position: relative; }
-        .multiplier-display { text-align: center; font-size: 42px; font-weight: bold; color: #ffca28; margin: 5px 0; text-shadow: 0 0 15px rgba(255,202,40,0.6); }
+        .game-container { background: #121926; margin: 10px; border-radius: 10px; padding: 12px; border: 1px solid #232d47; position: relative; }
+        .multiplier-display { text-align: center; font-size: 44px; font-weight: bold; color: #ffca28; margin: 4px 0; text-shadow: 0 0 15px rgba(255,202,40,0.6); }
         .live-win-preview { text-align: center; font-size: 13px; color: #28a745; margin-bottom: 8px; height: 18px; font-weight: bold; }
         #game-canvas { background: #070a12; width: 100%; height: 210px; border-radius: 8px; display: block; }
         
+        /* History & Stats Bar */
+        .live-stats { display: flex; justify-content: space-between; align-items: center; margin: 10px; background: #151d30; padding: 8px 12px; border-radius: 6px; font-size: 12px; color: #8a99ad; border: 1px solid #232d47; }
+        .history-tag { background: #0b111e; padding: 3px 7px; border-radius: 4px; color: #ffca28; font-weight: bold; font-size: 11px; margin-left: 3px; }
+
         /* Betting Panels (Dual) */
         .bets-wrapper { display: flex; flex-direction: column; gap: 10px; margin: 10px; }
         .bet-card { background: #151d30; padding: 12px; border-radius: 8px; border: 1px solid #232d47; display: flex; flex-direction: column; gap: 8px; }
         .bet-row { display: flex; justify-content: space-between; align-items: center; }
         .amount-control { display: flex; align-items: center; background: #0b111e; border-radius: 5px; border: 1px solid #232d47; overflow: hidden; }
-        .amount-control button { background: #232d47; color: #fff; border: none; padding: 8px 14px; font-size: 16px; cursor: pointer; font-weight: bold; }
+        .amount-control button { background: #232d47; color: #fff; border: none; padding: 8px 15px; font-size: 16px; cursor: pointer; font-weight: bold; }
         .amount-control button:active { background: #e51c24; }
-        .amount-control input { width: 65px; background: transparent; border: none; color: #fff; text-align: center; font-size: 16px; font-weight: bold; outline: none; }
+        .amount-control input { width: 70px; background: transparent; border: none; color: #fff; text-align: center; font-size: 16px; font-weight: bold; outline: none; }
         
-        .btn-action { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-action { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
         .btn-bet { background: #28a745; color: #fff; }
-        .btn-cashout { background: #ffc107; color: #000; display: none; }
+        .btn-cashout { background: #ffc107; color: #000; display: none; box-shadow: 0 0 10px rgba(255,193,7,0.5); }
 
-        /* Live Players & History */
-        .live-stats { display: flex; justify-content: space-between; margin: 10px; background: #151d30; padding: 8px 12px; border-radius: 6px; font-size: 12px; color: #8a99ad; }
+        /* Refer & Profile Styling */
+        .card-box { background: #151d30; margin: 12px; padding: 16px; border-radius: 10px; border: 1px solid #232d47; }
         
-        /* Navigation Bar */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #151d30; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #232d47; z-index: 100; }
+        /* Bottom Navigation Bar */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #151d30; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #232d47; z-index: 1000; }
         .nav-item { color: #8a99ad; text-decoration: none; font-size: 12px; text-align: center; cursor: pointer; }
-        .nav-item.active { color: #e51c24; }
+        .nav-item.active { color: #e51c24; font-weight: bold; }
 
         /* Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #151d30; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; border: 1px solid #e51c24; position: relative; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 10000; justify-content: center; align-items: center; }
+        .modal-content { background: #151d30; padding: 22px; border-radius: 12px; width: 90%; max-width: 350px; border: 1px solid #e51c24; position: relative; }
         .modal-content h3 { margin-bottom: 15px; color: #e51c24; text-align: center; }
-        .modal-content input { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 5px; border: 1px solid #232d47; background: #0b111e; color: #fff; font-size: 14px; }
-        .modal-content button { width: 100%; padding: 10px; background: #e51c24; border: none; color: #fff; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 15px; }
-        .close-modal { text-align: center; margin-top: 10px; font-size: 12px; color: #8a99ad; cursor: pointer; }
+        .modal-content input { width: 100%; padding: 11px; margin-bottom: 12px; border-radius: 6px; border: 1px solid #232d47; background: #0b111e; color: #fff; font-size: 14px; }
+        .modal-content button { width: 100%; padding: 11px; background: #e51c24; border: none; color: #fff; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 15px; }
+        .close-modal { text-align: center; margin-top: 12px; font-size: 12px; color: #8a99ad; cursor: pointer; }
     </style>
 </head>
 <body>
+
+    <!-- Splash Intro Screen -->
+    <div id="splash-screen">
+        <div class="splash-logo">🚀 Aviator Pro</div>
+        <div class="splash-sub">ক্যাসিনো এনভায়রনমেন্ট লোড হচ্ছে...</div>
+    </div>
 
     <!-- Header -->
     <header>
@@ -67,20 +93,25 @@
         </div>
     </header>
 
-    <!-- Main Game Section -->
-    <div id="tab-game">
+    <!-- TAB 1: GAME ARENA -->
+    <div id="tab-game" class="tab-content active-tab">
+        <div class="promo-banner">
+            <h2>🔥 মেগা বোনাস ও ইনস্ট্যান্ট ক্যাশআউট</h2>
+            <p>বিকাশ, নগদ ও রকেটে ২৪/৭ পেমেন্ট সুবিধা!</p>
+        </div>
+
         <div class="game-container">
             <div class="multiplier-display" id="mult-view">1.00x</div>
-            <div class="live-win-preview" id="win-preview">সম্ভাব্য উইন: ৳0</div>
+            <div class="live-win-preview" id="win-preview">বেট ধরে উইন নিশ্চিত করুন</div>
             <canvas id="game-canvas"></canvas>
         </div>
 
         <div class="live-stats">
-            <span>অনলাইন খেলোয়াড়: <strong style="color:#28a745">২,১৫০ জন</strong></span>
-            <span id="history-mults">হিস্ট্রি: 1.5x, 3.2x, 1.1x</span>
+            <span>অনলাইন: <strong style="color:#28a745">২,৮৪০ জন</strong></span>
+            <div id="history-box">হিস্ট্রি: <span class="history-tag">1.4x</span><span class="history-tag">2.9x</span><span class="history-tag">1.1x</span></div>
         </div>
 
-        <!-- Dual Bet Controls -->
+        <!-- Dual Betting Panels -->
         <div class="bets-wrapper">
             <!-- Bet Panel 1 -->
             <div class="bet-card">
@@ -118,26 +149,31 @@
         </div>
     </div>
 
-    <!-- Refer View -->
-    <div id="tab-refer" style="display:none; padding: 20px; text-align: center;">
-        <h3 style="color: #ffca28; margin-bottom: 10px;">🎁 রেফার করুন ও আয় করুন</h3>
-        <p style="color: #8a99ad; font-size: 13px; margin-bottom: 15px;">প্রতিটি সফল রেফারে ইনস্ট্যান্ট পেয়ে যান ৳৫০ বোনাস!</p>
-        <input type="text" id="ref-link" value="" readonly style="width: 100%; padding: 10px; text-align: center; background: #151d30; border: 1px solid #232d47; color: #fff; border-radius: 5px; margin-bottom: 10px;">
-        <button onclick="copyRef()" style="width: 100%; padding: 10px; background: #28a745; color: #fff; border: none; border-radius: 5px; font-weight: bold;">লিংক কপি করুন</button>
-    </div>
-
-    <!-- Profile View -->
-    <div id="tab-profile" style="display:none; padding: 20px;">
-        <h3 style="color: #e51c24; margin-bottom: 15px;">👤 একাউন্ট প্রোফাইল</h3>
-        <div style="background: #151d30; padding: 15px; border-radius: 8px; border: 1px solid #232d47; line-height: 1.8;">
-            <p>নাম: <strong id="p-name">-</strong></p>
-            <p>মোবাইল নম্বর: <strong id="p-phone">-</strong></p>
-            <p>ব্যালেন্স: <strong style="color: #28a745;">৳<span id="p-bal">0</span></strong></p>
-            <button onclick="logout()" style="margin-top: 15px; width: 100%; padding: 10px; background: #dc3545; color: #fff; border: none; border-radius: 5px; font-weight: bold;">লগ আউট করুন</button>
+    <!-- TAB 2: REFERRAL -->
+    <div id="tab-refer" class="tab-content">
+        <div class="card-box" style="text-align: center;">
+            <h3 style="color: #ffca28; margin-bottom: 10px;">🎁 রেফার করুন ও আনলিমিটেড আয় করুন</h3>
+            <p style="color: #8a99ad; font-size: 13px; margin-bottom: 15px;">বন্ধুকে রেফার করলেই পেয়ে যাবেন ইনস্ট্যান্ট ৫০ টাকা ক্যাশ বোনাস!</p>
+            <input type="text" id="ref-link" value="" readonly style="width: 100%; padding: 10px; text-align: center; background: #0b111e; border: 1px solid #232d47; color: #fff; border-radius: 5px; margin-bottom: 10px;">
+            <button onclick="copyRef()" style="width: 100%; padding: 11px; background: #28a745; color: #fff; border: none; border-radius: 6px; font-weight: bold;">লিংক কপি করুন</button>
         </div>
     </div>
 
-    <!-- Bottom Navigation -->
+    <!-- TAB 3: PROFILE -->
+    <div id="tab-profile" class="tab-content">
+        <div class="card-box">
+            <h3 style="color: #e51c24; margin-bottom: 15px;">👤 একাউন্ট প্রোফাইল</h3>
+            <div style="line-height: 2.0; font-size: 14px;">
+                <p>নাম: <strong id="p-name">-</strong></p>
+                <p>মোবাইল নম্বর: <strong id="p-phone">-</strong></p>
+                <p>স্ট্যাটাস: <span style="color: #28a745; font-weight: bold;">ভেরিফাইড একাউন্ট ✓</span></p>
+                <p>ডেমো ব্যালেন্স: <strong style="color: #ffca28;">৳<span id="p-bal">0</span></strong></p>
+                <button onclick="logout()" style="margin-top: 18px; width: 100%; padding: 11px; background: #dc3545; color: #fff; border: none; border-radius: 6px; font-weight: bold;">লগ আউট করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('game', this)">🚀 গেম</div>
         <div class="nav-item" onclick="switchTab('refer', this)">🎁 রেফার</div>
@@ -148,9 +184,9 @@
     <div id="regModal" class="modal">
         <div class="modal-content">
             <h3>নতুন একাউন্ট সাইন আপ</h3>
-            <input type="text" id="reg-name" placeholder="আপনার পূর্ণ নাম দিন">
-            <input type="tel" id="reg-phone" placeholder="সঠিক মোবাইল নম্বর (যেমন: 017...)">
-            <input type="password" id="reg-pass" placeholder="৬ সংখ্যার পাসওয়ার্ড দিন">
+            <input type="text" id="reg-name" placeholder="আপনার নাম দিন">
+            <input type="tel" id="reg-phone" placeholder="১১ ডিজিটের মোবাইল নম্বর">
+            <input type="password" id="reg-pass" placeholder="৬ সংখ্যার পাসওয়ার্ড">
             <button onclick="handleRegister()">সাইন আপ করুন</button>
             <div class="close-modal" onclick="closeModal('regModal')">বন্ধ করুন</div>
         </div>
@@ -160,23 +196,33 @@
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <h3>একাউন্ট লগইন</h3>
-            <input type="tel" id="login-phone" placeholder="আপনার নিবন্ধিত মোবাইল নম্বর">
-            <input type="password" id="login-pass" placeholder="আপনার পাসওয়ার্ড">
+            <input type="tel" id="login-phone" placeholder="মোবাইল নম্বর">
+            <input type="password" id="login-pass" placeholder="পাসওয়ার্ড">
             <button onclick="handleLogin()">লগইন করুন</button>
             <div class="close-modal" onclick="closeModal('loginModal')">বন্ধ করুন</div>
         </div>
     </div>
 
     <script>
+        // Splash Intro Removal after 1.5 seconds
+        setTimeout(() => {
+            let splash = document.getElementById('splash-screen');
+            if(splash) {
+                splash.style.opacity = '0';
+                setTimeout(() => splash.remove(), 600);
+            }
+        }, 1500);
+
+        // Canvas Setup
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
         function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth - 20;
-            canvas.height = 200;
+            canvas.width = canvas.parentElement.clientWidth - 24;
+            canvas.height = 210;
         }
 
-        let usersDB = JSON.parse(localStorage.getItem('aviator_users_v3')) || [];
-        let currentUser = JSON.parse(localStorage.getItem('aviator_session_v3')) || null;
+        let usersDB = JSON.parse(localStorage.getItem('aviator_db_v5')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('aviator_session_v5')) || null;
 
         function initApp() {
             resizeCanvas();
@@ -187,7 +233,8 @@
                         <button class="btn-top-reg" onclick="openModal('regModal')">সাইন আপ</button>
                     </div>
                 `;
-                setTimeout(() => openModal('regModal'), 500);
+                // Force open Register modal if not logged in
+                setTimeout(() => openModal('regModal'), 800);
             } else {
                 updateHeaderUser();
                 document.getElementById('p-name').innerText = currentUser.name;
@@ -200,30 +247,59 @@
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
+        // Sound Engine using Web Audio API
+        function playSound(type) {
+            try {
+                let ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = ctxAudio.createOscillator();
+                let gain = ctxAudio.createGain();
+                osc.connect(gain);
+                gain.connect(ctxAudio.destination);
+
+                if (type === 'start') {
+                    osc.frequency.setValueAtTime(250, ctxAudio.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(600, ctxAudio.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.08, ctxAudio.currentTime);
+                    osc.start(); osc.stop(ctxAudio.currentTime + 0.2);
+                } else if (type === 'cashout') {
+                    osc.frequency.setValueAtTime(500, ctxAudio.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1100, ctxAudio.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.12, ctxAudio.currentTime);
+                    osc.start(); osc.stop(ctxAudio.currentTime + 0.3);
+                } else if (type === 'crash') {
+                    osc.type = "sawtooth";
+                    osc.frequency.setValueAtTime(160, ctxAudio.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(35, ctxAudio.currentTime + 0.4);
+                    gain.gain.setValueAtTime(0.18, ctxAudio.currentTime);
+                    osc.start(); osc.stop(ctxAudio.currentTime + 0.4);
+                }
+            } catch(e) {}
+        }
+
         function handleRegister() {
             let name = document.getElementById('reg-name').value.trim();
             let phone = document.getElementById('reg-phone').value.trim();
             let pass = document.getElementById('reg-pass').value.trim();
 
             if (!name || name.length < 2) { alert('সঠিক নাম দিন।'); return; }
-            if (!phone || phone.length < 11 || isNaN(phone)) { alert('সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।'); return; }
+            if (!phone || phone.length < 11 || isNaN(phone)) { alert('১১ ডিজিটের সঠিক মোবাইল নম্বর দিন।'); return; }
             if (!pass || pass.length < 4) { alert('কমপক্ষে ৪ সংখ্যার পাসওয়ার্ড দিন।'); return; }
 
             let exist = usersDB.find(u => u.phone === phone);
             if (exist) {
-                alert('এই নম্বর দিয়ে ইতিপূর্বে একাউন্ট খোলা হয়েছে! লগইন করুন।');
+                alert('এই নম্বর দিয়ে ইতিপূর্বে একাউন্ট খোলা হয়েছে! দয়া করে লগইন করুন।');
                 closeModal('regModal'); openModal('loginModal');
                 return;
             }
 
             let newUser = { name, phone, pass, balance: 1000 };
             usersDB.push(newUser);
-            localStorage.setItem('aviator_users_v3', JSON.stringify(usersDB));
+            localStorage.setItem('aviator_db_v5', JSON.stringify(usersDB));
             
             currentUser = newUser;
-            localStorage.setItem('aviator_session_v3', JSON.stringify(currentUser));
+            localStorage.setItem('aviator_session_v5', JSON.stringify(currentUser));
 
-            alert('সাইন-আপ সফল হয়েছে এবং ৳১০০০ বোনাস যোগ হয়েছে!');
+            alert('সাইন-আপ সফল হয়েছে এবং ৳১০০০ ডেমো বোনাস যোগ হয়েছে!');
             closeModal('regModal');
             location.reload();
         }
@@ -232,13 +308,13 @@
             let phone = document.getElementById('login-phone').value.trim();
             let pass = document.getElementById('login-pass').value.trim();
 
-            if (!phone || !pass) { alert('নম্বর এবং পাসওয়ার্ড উভয়ই দিন।'); return; }
+            if (!phone || !pass) { alert('নম্বর এবং পাসওয়ার্ড উভয়ই পূরণ করুন।'); return; }
 
             let found = usersDB.find(u => u.phone === phone && u.pass === pass);
-            if (!found) { alert('নম্বর অথবা পাসওয়ার্ড ভুল!'); return; }
+            if (!found) { alert('মোবাইল নম্বর অথবা পাসওয়ার্ড ভুল হয়েছে!'); return; }
 
             currentUser = found;
-            localStorage.setItem('aviator_session_v3', JSON.stringify(currentUser));
+            localStorage.setItem('aviator_session_v5', JSON.stringify(currentUser));
 
             alert('সফলভাবে লগইন হয়েছে!');
             closeModal('loginModal');
@@ -246,138 +322,32 @@
         }
 
         function logout() {
-            localStorage.removeItem('aviator_session_v3');
+            localStorage.removeItem('aviator_session_v5');
             location.reload();
         }
 
         function updateHeaderUser() {
             document.getElementById('header-right-area').innerHTML = `
                 <div class="user-panel">
-                    <div style="font-size:11px; max-width:85px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${currentUser.name}</div>
+                    <div style="font-size:11px; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${currentUser.name}</div>
                     <div class="balance-box">৳<span id="top-bal">${currentUser.balance}</span></div>
                 </div>
             `;
         }
 
         function saveBalance() {
-            localStorage.setItem('aviator_session_v3', JSON.stringify(currentUser));
+            localStorage.setItem('aviator_session_v5', JSON.stringify(currentUser));
             let idx = usersDB.findIndex(u => u.phone === currentUser.phone);
             if(idx !== -1) {
                 usersDB[idx].balance = currentUser.balance;
-                localStorage.setItem('aviator_users_v3', JSON.stringify(usersDB));
+                localStorage.setItem('aviator_db_v5', JSON.stringify(usersDB));
             }
             if(document.getElementById('top-bal')) document.getElementById('top-bal').innerText = currentUser.balance;
             if(document.getElementById('p-bal')) document.getElementById('p-bal').innerText = currentUser.balance;
         }
 
         function switchTab(tabName, el) {
-            document.getElementById('tab-game').style.display = tabName === 'game' ? 'block' : 'none';
-            document.getElementById('tab-refer').style.display = tabName === 'refer' ? 'block' : 'none';
-            document.getElementById('tab-profile').style.display = tabName === 'profile' ? 'block' : 'none';
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+            document.getElementById('tab-' + tabName).classList.add('active-tab');
             
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            if(tabName === 'game') resizeCanvas();
-        }
-
-        function copyRef() {
-            let copyText = document.getElementById("ref-link");
-            navigator.clipboard.writeText(copyText.value);
-            alert("রেফারেল লিংক কপি করা হয়েছে!");
-        }
-
-        function changeBet(panelId, amt) {
-            let input = document.getElementById('bet-input-' + panelId);
-            let val = parseInt(input.value) + amt;
-            if(val >= 50) input.value = val;
-            updateBetBtns();
-        }
-        function setPreset(panelId, val) {
-            document.getElementById('bet-input-' + panelId).value = val;
-            updateBetBtns();
-        }
-        function updateBetBtns() {
-            if(!betsActive[1]) document.getElementById('btn-bet-1').innerText = `বেট করুন (৳${document.getElementById('bet-input-1').value})`;
-            if(!betsActive[2]) document.getElementById('btn-bet-2').innerText = `বেট করুন (৳${document.getElementById('bet-input-2').value})`;
-        }
-
-        // Game Core
-        let gameState = 'IDLE'; 
-        let currentMult = 1.00;
-        let crashPoint = 1.00;
-        let gameInterval = null;
-        let planeX = 15, planeY = 15;
-        let betsActive = { 1: false, 2: false };
-        let betAmounts = { 1: 0, 2: 0 };
-
-        function drawScene(mult, statusColor = "#ffca28") {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = "#1b263b";
-            ctx.lineWidth = 1;
-            for(let i=0; i<canvas.width; i+=40) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
-            }
-            for(let j=0; j<canvas.height; j+=40) {
-                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
-            }
-
-            if(gameState === 'RUNNING' || gameState === 'CRASHED') {
-                ctx.strokeStyle = "#e51c24";
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(15, 185);
-                ctx.quadraticCurveTo(planeX / 1.4, 185 - (planeY * 0.8), planeX, 185 - planeY);
-                ctx.stroke();
-
-                ctx.fillStyle = statusColor;
-                ctx.beginPath();
-                ctx.arc(planeX, 185 - planeY, 8, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = "#fff";
-                ctx.font = "12px sans-serif";
-                ctx.fillText("✈️", planeX - 7, 185 - planeY + 4);
-            }
-        }
-
-        function runGameCycle() {
-            gameState = 'RUNNING';
-            currentMult = 1.00;
-            crashPoint = (Math.random() * 3.5 + 1.2).toFixed(2); 
-            planeX = 15; planeY = 15;
-
-            for(let i=1; i<=2; i++) {
-                if(betsActive[i]) {
-                    document.getElementById(`btn-bet-${i}`).style.display = 'none';
-                    document.getElementById(`btn-cashout-${i}`).style.display = 'block';
-                }
-            }
-
-            gameInterval = setInterval(() => {
-                currentMult += 0.03;
-                planeX += 2.8;
-                planeY += 1.8;
-                if(planeX > canvas.width - 30) planeX = canvas.width - 30;
-                if(planeY > 155) planeY = 155;
-
-                document.getElementById('mult-view').innerText = currentMult.toFixed(2) + 'x';
-                
-                let activeWinTxt = "";
-                for(let i=1; i<=2; i++) {
-                    if(betsActive[i]) {
-                        let currentWin = Math.floor(betAmounts[i] * currentMult);
-                        activeWinTxt += `বেট ${i} উইন: ৳${currentWin}  `;
-                    }
-                }
-                document.getElementById('win-preview').innerText = activeWinTxt || "বিমান আকাশে উড়ছে...";
-                drawScene(currentMult);
-
-                if(currentMult >= crashPoint) {
-                    clearInterval(gameInterval);
-                    triggerCrash();
-                }
-            }, 90);
-        }
-
-        function triggerCrash() {
-            gameState
+            document.querySelectorAll('.nav-item').
