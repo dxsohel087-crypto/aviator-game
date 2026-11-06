@@ -1,1 +1,353 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviator Pro - Casino Edition</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0b111e; color: #ffffff; padding-bottom: 75px; overflow-x: hidden; }
+        
+        /* Splash Intro Screen */
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #070a12; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.6s ease; }
+        .splash-logo { font-size: 45px; font-weight: bold; color: #e51c24; font-style: italic; animation: pulseLogo 1s infinite alternate; text-shadow: 0 0 20px rgba(229,28,36,0.6); }
+        .splash-sub { color: #ffca28; font-size: 14px; margin-top: 12px; letter-spacing: 2px; }
+        @keyframes pulseLogo { 0% { transform: scale(1); opacity: 0.85; } 100% { transform: scale(1.1); opacity: 1; } }
 
+        /* Header */
+        header { background: #151d30; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #232d47; }
+        .logo { font-size: 19px; font-weight: bold; color: #e51c24; font-style: italic; }
+        .auth-top-btns { display: flex; gap: 8px; }
+        .auth-top-btns button { padding: 6px 12px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-top-login { background: #232d47; color: #fff; }
+        .btn-top-reg { background: #e51c24; color: #fff; }
+        
+        .user-panel { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .balance-box { background: #0b111e; padding: 5px 10px; border-radius: 5px; border: 1px solid #28a745; color: #28a745; font-weight: bold; }
+        
+        /* Tabs Container */
+        .tab-content { display: none; }
+        .tab-content.active-tab { display: block; }
+
+        /* Banner */
+        .promo-banner { background: linear-gradient(135deg, #800f14, #3d0508); margin: 12px; padding: 18px; border-radius: 12px; text-align: center; border: 1px solid #ff2a34; box-shadow: 0 4px 15px rgba(229,28,36,0.3); }
+        .promo-banner h2 { color: #ffca28; font-size: 17px; margin-bottom: 6px; }
+        .promo-banner p { font-size: 12px; color: #ddd; }
+
+        /* Game Arena */
+        .game-container { background: #121926; margin: 10px; border-radius: 10px; padding: 12px; border: 1px solid #232d47; position: relative; }
+        .multiplier-display { text-align: center; font-size: 44px; font-weight: bold; color: #ffca28; margin: 4px 0; text-shadow: 0 0 15px rgba(255,202,40,0.6); }
+        .live-win-preview { text-align: center; font-size: 13px; color: #28a745; margin-bottom: 8px; height: 18px; font-weight: bold; }
+        #game-canvas { background: #070a12; width: 100%; height: 210px; border-radius: 8px; display: block; }
+        
+        /* History & Stats Bar */
+        .live-stats { display: flex; justify-content: space-between; align-items: center; margin: 10px; background: #151d30; padding: 8px 12px; border-radius: 6px; font-size: 12px; color: #8a99ad; border: 1px solid #232d47; }
+        .history-tag { background: #0b111e; padding: 3px 7px; border-radius: 4px; color: #ffca28; font-weight: bold; font-size: 11px; margin-left: 3px; }
+
+        /* Betting Panels (Dual) */
+        .bets-wrapper { display: flex; flex-direction: column; gap: 10px; margin: 10px; }
+        .bet-card { background: #151d30; padding: 12px; border-radius: 8px; border: 1px solid #232d47; display: flex; flex-direction: column; gap: 8px; }
+        .bet-row { display: flex; justify-content: space-between; align-items: center; }
+        .amount-control { display: flex; align-items: center; background: #0b111e; border-radius: 5px; border: 1px solid #232d47; overflow: hidden; }
+        .amount-control button { background: #232d47; color: #fff; border: none; padding: 8px 15px; font-size: 16px; cursor: pointer; font-weight: bold; }
+        .amount-control button:active { background: #e51c24; }
+        .amount-control input { width: 70px; background: transparent; border: none; color: #fff; text-align: center; font-size: 16px; font-weight: bold; outline: none; }
+        
+        .btn-action { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-bet { background: #28a745; color: #fff; }
+        .btn-cashout { background: #ffc107; color: #000; display: none; box-shadow: 0 0 10px rgba(255,193,7,0.5); }
+
+        /* Refer & Profile Styling */
+        .card-box { background: #151d30; margin: 12px; padding: 16px; border-radius: 10px; border: 1px solid #232d47; }
+        
+        /* Bottom Navigation Bar */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #151d30; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #232d47; z-index: 1000; }
+        .nav-item { color: #8a99ad; text-decoration: none; font-size: 12px; text-align: center; cursor: pointer; }
+        .nav-item.active { color: #e51c24; font-weight: bold; }
+
+        /* Modals */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 10000; justify-content: center; align-items: center; }
+        .modal-content { background: #151d30; padding: 22px; border-radius: 12px; width: 90%; max-width: 350px; border: 1px solid #e51c24; position: relative; }
+        .modal-content h3 { margin-bottom: 15px; color: #e51c24; text-align: center; }
+        .modal-content input { width: 100%; padding: 11px; margin-bottom: 12px; border-radius: 6px; border: 1px solid #232d47; background: #0b111e; color: #fff; font-size: 14px; }
+        .modal-content button { width: 100%; padding: 11px; background: #e51c24; border: none; color: #fff; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 15px; }
+        .close-modal { text-align: center; margin-top: 12px; font-size: 12px; color: #8a99ad; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Intro Screen -->
+    <div id="splash-screen">
+        <div class="splash-logo">🚀 Aviator Pro</div>
+        <div class="splash-sub">ক্যাসিনো এনভায়রনমেন্ট লোড হচ্ছে...</div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">Aviator Pro</div>
+        <div id="header-right-area">
+            <div class="auth-top-btns">
+                <button class="btn-top-login" onclick="openModal('loginModal')">লগইন</button>
+                <button class="btn-top-reg" onclick="openModal('regModal')">সাইন আপ</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- TAB 1: GAME ARENA -->
+    <div id="tab-game" class="tab-content active-tab">
+        <div class="promo-banner">
+            <h2>🔥 মেগা বোনাস ও ইনস্ট্যান্ট ক্যাশআউট</h2>
+            <p>বিকাশ, নগদ ও রকেটে ২৪/৭ পেমেন্ট সুবিধা!</p>
+        </div>
+
+        <div class="game-container">
+            <div class="multiplier-display" id="mult-view">1.00x</div>
+            <div class="live-win-preview" id="win-preview">বেট ধরে উইন নিশ্চিত করুন</div>
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <div class="live-stats">
+            <span>অনলাইন: <strong style="color:#28a745">২,৮৪০ জন</strong></span>
+            <div id="history-box">হিস্ট্রি: <span class="history-tag">1.4x</span><span class="history-tag">2.9x</span><span class="history-tag">1.1x</span></div>
+        </div>
+
+        <!-- Dual Betting Panels -->
+        <div class="bets-wrapper">
+            <!-- Bet Panel 1 -->
+            <div class="bet-card">
+                <div class="bet-row">
+                    <div class="amount-control">
+                        <button onclick="changeBet(1, -50)">-</button>
+                        <input type="text" id="bet-input-1" value="100" readonly>
+                        <button onclick="changeBet(1, 50)">+</button>
+                    </div>
+                    <div>
+                        <button onclick="setPreset(1, 100)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">৳১০০</button>
+                        <button onclick="setPreset(1, 500)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">৳৫০০</button>
+                    </div>
+                </div>
+                <button class="btn-action btn-bet" id="btn-bet-1" onclick="toggleBet(1)">বেট করুন (৳100)</button>
+                <button class="btn-action btn-cashout" id="btn-cashout-1" onclick="cashOut(1)">Cash Out</button>
+            </div>
+
+            <!-- Bet Panel 2 -->
+            <div class="bet-card">
+                <div class="bet-row">
+                    <div class="amount-control">
+                        <button onclick="changeBet(2, -50)">-</button>
+                        <input type="text" id="bet-input-2" value="200" readonly>
+                        <button onclick="changeBet(2, 50)">+</button>
+                    </div>
+                    <div>
+                        <button onclick="setPreset(2, 200)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">৳২০০</button>
+                        <button onclick="setPreset(2, 1000)" style="background:#232d47; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px;">৳১০০০</button>
+                    </div>
+                </div>
+                <button class="btn-action btn-bet" id="btn-bet-2" onclick="toggleBet(2)">বেট করুন (৳200)</button>
+                <button class="btn-action btn-cashout" id="btn-cashout-2" onclick="cashOut(2)">Cash Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: REFERRAL -->
+    <div id="tab-refer" class="tab-content">
+        <div class="card-box" style="text-align: center;">
+            <h3 style="color: #ffca28; margin-bottom: 10px;">🎁 রেফার করুন ও আনলিমিটেড আয় করুন</h3>
+            <p style="color: #8a99ad; font-size: 13px; margin-bottom: 15px;">বন্ধুকে রেফার করলেই পেয়ে যাবেন ইনস্ট্যান্ট ৫০ টাকা ক্যাশ বোনাস!</p>
+            <input type="text" id="ref-link" value="" readonly style="width: 100%; padding: 10px; text-align: center; background: #0b111e; border: 1px solid #232d47; color: #fff; border-radius: 5px; margin-bottom: 10px;">
+            <button onclick="copyRef()" style="width: 100%; padding: 11px; background: #28a745; color: #fff; border: none; border-radius: 6px; font-weight: bold;">লিংক কপি করুন</button>
+        </div>
+    </div>
+
+    <!-- TAB 3: PROFILE -->
+    <div id="tab-profile" class="tab-content">
+        <div class="card-box">
+            <h3 style="color: #e51c24; margin-bottom: 15px;">👤 একাউন্ট প্রোফাইল</h3>
+            <div style="line-height: 2.0; font-size: 14px;">
+                <p>নাম: <strong id="p-name">-</strong></p>
+                <p>মোবাইল নম্বর: <strong id="p-phone">-</strong></p>
+                <p>স্ট্যাটাস: <span style="color: #28a745; font-weight: bold;">ভেরিফাইড একাউন্ট ✓</span></p>
+                <p>ডেমো ব্যালেন্স: <strong style="color: #ffca28;">৳<span id="p-bal">0</span></strong></p>
+                <button onclick="logout()" style="margin-top: 18px; width: 100%; padding: 11px; background: #dc3545; color: #fff; border: none; border-radius: 6px; font-weight: bold;">লগ আউট করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('game', this)">🚀 গেম</div>
+        <div class="nav-item" onclick="switchTab('refer', this)">🎁 রেফার</div>
+        <div class="nav-item" onclick="switchTab('profile', this)">👤 প্রোফাইল</div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="regModal" class="modal">
+        <div class="modal-content">
+            <h3>নতুন একাউন্ট সাইন আপ</h3>
+            <input type="text" id="reg-name" placeholder="আপনার নাম দিন">
+            <input type="tel" id="reg-phone" placeholder="১১ ডিজিটের মোবাইল নম্বর">
+            <input type="password" id="reg-pass" placeholder="৬ সংখ্যার পাসওয়ার্ড">
+            <button onclick="handleRegister()">সাইন আপ করুন</button>
+            <div class="close-modal" onclick="closeModal('regModal')">বন্ধ করুন</div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h3>একাউন্ট লগইন</h3>
+            <input type="tel" id="login-phone" placeholder="মোবাইল নম্বর">
+            <input type="password" id="login-pass" placeholder="পাসওয়ার্ড">
+            <button onclick="handleLogin()">লগইন করুন</button>
+            <div class="close-modal" onclick="closeModal('loginModal')">বন্ধ করুন</div>
+        </div>
+    </div>
+
+    <script>
+        // Splash Intro Removal after 1.5 seconds
+        setTimeout(() => {
+            let splash = document.getElementById('splash-screen');
+            if(splash) {
+                splash.style.opacity = '0';
+                setTimeout(() => splash.remove(), 600);
+            }
+        }, 1500);
+
+        // Canvas Setup
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth - 24;
+            canvas.height = 210;
+        }
+
+        let usersDB = JSON.parse(localStorage.getItem('aviator_db_v5')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('aviator_session_v5')) || null;
+
+        function initApp() {
+            resizeCanvas();
+            if (!currentUser) {
+                document.getElementById('header-right-area').innerHTML = `
+                    <div class="auth-top-btns">
+                        <button class="btn-top-login" onclick="openModal('loginModal')">লগইন</button>
+                        <button class="btn-top-reg" onclick="openModal('regModal')">সাইন আপ</button>
+                    </div>
+                `;
+                // Force open Register modal if not logged in
+                setTimeout(() => openModal('regModal'), 800);
+            } else {
+                updateHeaderUser();
+                document.getElementById('p-name').innerText = currentUser.name;
+                document.getElementById('p-phone').innerText = currentUser.phone;
+                document.getElementById('p-bal').innerText = currentUser.balance;
+                document.getElementById('ref-link').value = `https://dxsohel087-crypto.github.io/aviator-game/?ref=` + currentUser.phone;
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // Sound Engine using Web Audio API
+        function playSound(type) {
+            try {
+                let ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = ctxAudio.createOscillator();
+                let gain = ctxAudio.createGain();
+                osc.connect(gain);
+                gain.connect(ctxAudio.destination);
+
+                if (type === 'start') {
+                    osc.frequency.setValueAtTime(250, ctxAudio.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(600, ctxAudio.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.08, ctxAudio.currentTime);
+                    osc.start(); osc.stop(ctxAudio.currentTime + 0.2);
+                } else if (type === 'cashout') {
+                    osc.frequency.setValueAtTime(500, ctxAudio.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1100, ctxAudio.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.12, ctxAudio.currentTime);
+                    osc.start(); osc.stop(ctxAudio.currentTime + 0.3);
+                } else if (type === 'crash') {
+                    osc.type = "sawtooth";
+                    osc.frequency.setValueAtTime(160, ctxAudio.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(35, ctxAudio.currentTime + 0.4);
+                    gain.gain.setValueAtTime(0.18, ctxAudio.currentTime);
+                    osc.start(); osc.stop(ctxAudio.currentTime + 0.4);
+                }
+            } catch(e) {}
+        }
+
+        function handleRegister() {
+            let name = document.getElementById('reg-name').value.trim();
+            let phone = document.getElementById('reg-phone').value.trim();
+            let pass = document.getElementById('reg-pass').value.trim();
+
+            if (!name || name.length < 2) { alert('সঠিক নাম দিন।'); return; }
+            if (!phone || phone.length < 11 || isNaN(phone)) { alert('১১ ডিজিটের সঠিক মোবাইল নম্বর দিন।'); return; }
+            if (!pass || pass.length < 4) { alert('কমপক্ষে ৪ সংখ্যার পাসওয়ার্ড দিন।'); return; }
+
+            let exist = usersDB.find(u => u.phone === phone);
+            if (exist) {
+                alert('এই নম্বর দিয়ে ইতিপূর্বে একাউন্ট খোলা হয়েছে! দয়া করে লগইন করুন।');
+                closeModal('regModal'); openModal('loginModal');
+                return;
+            }
+
+            let newUser = { name, phone, pass, balance: 1000 };
+            usersDB.push(newUser);
+            localStorage.setItem('aviator_db_v5', JSON.stringify(usersDB));
+            
+            currentUser = newUser;
+            localStorage.setItem('aviator_session_v5', JSON.stringify(currentUser));
+
+            alert('সাইন-আপ সফল হয়েছে এবং ৳১০০০ ডেমো বোনাস যোগ হয়েছে!');
+            closeModal('regModal');
+            location.reload();
+        }
+
+        function handleLogin() {
+            let phone = document.getElementById('login-phone').value.trim();
+            let pass = document.getElementById('login-pass').value.trim();
+
+            if (!phone || !pass) { alert('নম্বর এবং পাসওয়ার্ড উভয়ই পূরণ করুন।'); return; }
+
+            let found = usersDB.find(u => u.phone === phone && u.pass === pass);
+            if (!found) { alert('মোবাইল নম্বর অথবা পাসওয়ার্ড ভুল হয়েছে!'); return; }
+
+            currentUser = found;
+            localStorage.setItem('aviator_session_v5', JSON.stringify(currentUser));
+
+            alert('সফলভাবে লগইন হয়েছে!');
+            closeModal('loginModal');
+            location.reload();
+        }
+
+        function logout() {
+            localStorage.removeItem('aviator_session_v5');
+            location.reload();
+        }
+
+        function updateHeaderUser() {
+            document.getElementById('header-right-area').innerHTML = `
+                <div class="user-panel">
+                    <div style="font-size:11px; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${currentUser.name}</div>
+                    <div class="balance-box">৳<span id="top-bal">${currentUser.balance}</span></div>
+                </div>
+            `;
+        }
+
+        function saveBalance() {
+            localStorage.setItem('aviator_session_v5', JSON.stringify(currentUser));
+            let idx = usersDB.findIndex(u => u.phone === currentUser.phone);
+            if(idx !== -1) {
+                usersDB[idx].balance = currentUser.balance;
+                localStorage.setItem('aviator_db_v5', JSON.stringify(usersDB));
+            }
+            if(document.getElementById('top-bal')) document.getElementById('top-bal').innerText = currentUser.balance;
+            if(document.getElementById('p-bal')) document.getElementById('p-bal').innerText = currentUser.balance;
+        }
+
+        function switchTab(tabName, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+            document.getElementById('tab-' + tabName).classList.add('active-tab');
+            
+            document.querySelectorAll('.nav-item').
